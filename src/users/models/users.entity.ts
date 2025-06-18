@@ -21,12 +21,15 @@ export class Users extends AbstractEntity<Users> {
   @Exclude()
   password: string;
 
+  @Column({ nullable: true })
+  profileUrl: string;
+
   @Column({ nullable: false, default: false })
   verified: boolean;
 
   @Column({ nullable: true })
   googleId: string;
 
-  @OneToMany(() => UserOrganizations, userOrg => userOrg.user)
+  @OneToMany(() => UserOrganizations, (userOrg) => userOrg.user)
   userOrganizations: UserOrganizations[];
 }
