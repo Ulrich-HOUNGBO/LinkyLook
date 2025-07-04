@@ -7,6 +7,9 @@ import { LoginDto, LoginResponseDto, RegisterDto } from './dto/auth.dto';
 import { UsersRepository } from '../users/models/users.repository';
 import { RedisService } from '@app/common';
 import { Users } from '../users/models/users.entity';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import { VERIFY_MAILS_QUEUE } from '@app/common/constants/queue';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +19,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly redisService: RedisService,
+    @InjectQueue(VERIFY_MAILS_QUEUE)
+    private readonly verifyMailsQueue: Queue,
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -65,7 +70,9 @@ export class AuthService {
     userData.verified = false;
     // Set other fields as needed
 
-    return await this.usersRepository.create(userData);
+    const user = await this.usersRepository.create(userData);
+    await this.sendVerificationEmail(user);
+    return user;
   }
 
   async refreshTokens(userId: string, refreshToken: string) {
@@ -135,6 +142,24 @@ export class AuthService {
     return { message: 'Logged out successfully' };
   }
 
+  async verifyEmail(token: string) {
+    // Verify the email token logic here
+    // This could involve checking the token against a database or cache
+    // For simplicity, let's assume the token is valid if it exists in Redis
+    const userId = await this.redisService.get(`email_verification:${token}`);
+
+    if (!userId) {
+      throw new UnauthorizedException('Invalid or expired verification token');
+    }
+
+    // Mark the user as verified
+    await this.usersRepository.update({ id: userId }, { verified: true });
+
+    await this.redisService.del(`email_verification:${token}`);
+
+    return { message: 'Email verified successfully' };
+  }
+
   private async getTokens(userId: string, email: string) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
@@ -174,5 +199,31 @@ export class AuthService {
   private async updateRefreshToken(userId: string, refreshToken: string) {
     // Store the refresh token in Redis instead of the database
     await this.redisService.set(`refresh_token:${userId}`, refreshToken);
+  }
+
+  private async sendVerificationEmail(user: Users) {
+    const token = this.jwtService.sign(
+      { sub: user.id, email: user.email },
+      {
+        secret: this.configService.get<string>('JWT_EMAIL_VERIFICATION_SECRET'),
+        expiresIn: parseInt(
+          this.configService.get<string>('JWT_EMAIL_VERIFICATION_EXPIRATION') ||
+            '180', // Default to 3 minutes
+          10,
+        ),
+      },
+    );
+    await this.redisService.set(
+      `email_verification:${token}`,
+      user.id,
+      180, // Store for 3 minutes
+    );
+    await this.verifyMailsQueue.add(VERIFY_MAILS_QUEUE, {
+      email: user.email,
+      token,
+      variables: {
+        name: user.username ?? user?.firstName + ' ' + user?.lastName,
+      },
+    });
   }
 }

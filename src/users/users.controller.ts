@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -11,6 +12,8 @@ import { UsersService } from './users.service';
 import { ActiveUser } from '../auth/decorators/active-user.decorator';
 import { Users } from './models/users.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SkipCache } from '@app/common';
+import { ChangePasswordDto } from './dto/users.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth('JWT')
@@ -24,23 +27,34 @@ export class UsersController {
     return await this.usersService.getAllUsers();
   }
 
+  @SkipCache()
+  @Get('me')
+  getProfile(@ActiveUser() user: Users) {
+    console.log('User profile:', user);
+    return user;
+  }
+
+  @SkipCache()
+  @Patch('change-password')
+  async changePassword(
+    @ActiveUser() user: Users,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    return await this.usersService.changePassword(user.id, changePasswordDto);
+  }
+
   @Get(':id')
   async getUser(@Param('id') id: string) {
     return await this.usersService.getUser(id);
   }
 
-  @Get('profile')
-  async getProfile(@ActiveUser() user: Users) {
-    return await this.usersService.getUser(user.id);
-  }
-
   @Patch(':id/update')
-  async updateUser(id: string, data: Partial<any>) {
+  async updateUser(id: string, data: Partial<Users>) {
     return await this.usersService.updateUser(id, data);
   }
 
-  @Delete('')
-  async deleteUser(id: string) {
+  @Delete(':id')
+  async deleteUser(@Param('id') id: string) {
     return await this.usersService.deleteUser(id);
   }
 }

@@ -15,10 +15,13 @@ import { OrganizationDto } from './dto/organization.dto';
 import { ActiveUser } from '../auth/decorators/active-user.decorator';
 import { Users } from '../users/models/users.entity';
 import { RoleDto } from './dto/role.dto';
-import { AddUserToOrganizationDto, UpdateUserRoleDto } from './dto/user-organization.dto';
+import {
+  AddUserToOrganizationDto,
+  UpdateUserRoleDto,
+} from './dto/user-organization.dto';
 
 @ApiTags('Organization')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT')
 @UseGuards(JwtAuthGuard)
 @Controller('organization')
 export class OrganizationController {
@@ -28,9 +31,12 @@ export class OrganizationController {
   @ApiOperation({ summary: 'Create a new organization' })
   async createOrganization(
     @Body() organizationDto: OrganizationDto,
-    @ActiveUser() currentUser: Users
+    @ActiveUser() currentUser: Users,
   ) {
-    return this.organizationService.createOrganization(organizationDto, currentUser);
+    return this.organizationService.createOrganization(
+      organizationDto,
+      currentUser,
+    );
   }
 
   @Get(':slug')
@@ -44,16 +50,20 @@ export class OrganizationController {
   async updateOrganization(
     @Param('slug') slug: string,
     @Body() updateData: Partial<{ name: string; description: string }>,
-    @ActiveUser() currentUser: Users
+    @ActiveUser() currentUser: Users,
   ) {
-    return this.organizationService.updateOrganization(slug, updateData, currentUser);
+    return this.organizationService.updateOrganization(
+      slug,
+      updateData,
+      currentUser,
+    );
   }
 
   @Delete(':slug')
   @ApiOperation({ summary: 'Delete organization' })
   async deleteOrganization(
     @Param('slug') slug: string,
-    @ActiveUser() currentUser: Users
+    @ActiveUser() currentUser: Users,
   ) {
     return this.organizationService.deleteOrganization(slug, currentUser);
   }
@@ -75,9 +85,13 @@ export class OrganizationController {
   async createRole(
     @Param('id') organizationId: string,
     @Body() roleDto: RoleDto,
-    @ActiveUser() currentUser: Users
+    @ActiveUser() currentUser: Users,
   ) {
-    return this.organizationService.createRole(organizationId, roleDto, currentUser);
+    return this.organizationService.createRole(
+      organizationId,
+      roleDto,
+      currentUser,
+    );
   }
 
   @Get(':id/roles')
@@ -91,9 +105,13 @@ export class OrganizationController {
   async addUserToOrganization(
     @Param('id') organizationId: string,
     @Body() addUserDto: AddUserToOrganizationDto,
-    @ActiveUser() currentUser: Users
+    @ActiveUser() currentUser: Users,
   ) {
-    return this.organizationService.addUserToOrganization(organizationId, addUserDto, currentUser);
+    return this.organizationService.addUserToOrganization(
+      organizationId,
+      addUserDto,
+      currentUser,
+    );
   }
 
   @Put(':id/users/:userId/role')
@@ -102,9 +120,14 @@ export class OrganizationController {
     @Param('id') organizationId: string,
     @Param('userId') userId: string,
     @Body() updateRoleDto: UpdateUserRoleDto,
-    @ActiveUser() currentUser: Users
+    @ActiveUser() currentUser: Users,
   ) {
-    return this.organizationService.updateUserRole(organizationId, userId, updateRoleDto, currentUser);
+    return this.organizationService.updateUserRole(
+      organizationId,
+      userId,
+      updateRoleDto,
+      currentUser,
+    );
   }
 
   @Delete(':id/users/:userId')
@@ -112,8 +135,12 @@ export class OrganizationController {
   async removeUserFromOrganization(
     @Param('id') organizationId: string,
     @Param('userId') userId: string,
-    @ActiveUser() currentUser: Users
+    @ActiveUser() currentUser: Users,
   ) {
-    return this.organizationService.removeUserFromOrganization(organizationId, userId, currentUser);
+    return this.organizationService.removeUserFromOrganization(
+      organizationId,
+      userId,
+      currentUser,
+    );
   }
 }

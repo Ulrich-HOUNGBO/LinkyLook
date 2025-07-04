@@ -43,8 +43,9 @@ export class MailsService {
 
   async sendTemplateEmail(
     to: string,
-    templateId: string,
-    variables: Record<string, any>,
+    subject: string,
+    templateId: number,
+    variables: Record<string, string>,
   ): Promise<void> {
     try {
       await this.mailjet.post('send', { version: 'v3.1' }).request({
@@ -56,8 +57,9 @@ export class MailsService {
               Name: this.configService.getOrThrow<string>('MAILJET_FROM_NAME'),
             },
             To: [{ Email: to }],
+            Subject: subject,
             TemplateID: templateId,
-            TemplateLanguage: true,
+            TemplateLanguage: false,
             Variables: variables,
           },
         ],

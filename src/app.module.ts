@@ -6,6 +6,8 @@ import { OrganizationModule } from './organization/organization.module';
 import { AuthModule } from './auth/auth.module';
 import { CampaignModule } from './campaign/campaign.module';
 import { ModelesModule } from './modeles/modeles.module';
+import { LinksModule } from './links/links.module';
+import { BullMqModule } from '@app/common/queue/queue.module';
 
 @Module({
   imports: [
@@ -15,11 +17,13 @@ import { ModelesModule } from './modeles/modeles.module';
     LoggerModule,
     RedisModule,
     CacheModule,
+    BullMqModule,
     UsersModule,
     AuthModule,
     ModelesModule,
     CampaignModule,
     OrganizationModule,
+    LinksModule,
   ],
   controllers: [],
   providers: [],

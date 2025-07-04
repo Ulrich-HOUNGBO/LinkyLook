@@ -9,6 +9,9 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { RedisModule } from '@app/common';
+import { BullMqModule } from '@app/common/queue/queue.module';
+import { VerifyMailConsumer } from '@app/common/queue/consumers/verify-mail.consumer';
+import { MailsModule } from '@app/common/mails';
 
 @Module({
   imports: [
@@ -28,9 +31,17 @@ import { RedisModule } from '@app/common';
     }),
     UsersModule,
     RedisModule,
+    BullMqModule,
+    MailsModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, JwtRefreshStrategy, GoogleStrategy],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    JwtRefreshStrategy,
+    GoogleStrategy,
+    VerifyMailConsumer,
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

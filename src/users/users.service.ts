@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UsersRepository } from './models/users.repository';
 import { ChangePasswordDto, CreateUserDto } from './dto/users.dto';
 import { Users } from './models/users.entity';
@@ -47,7 +51,10 @@ export class UsersService {
     return await this.repository.softDelete({ id });
   }
 
-  async changePassword(id: string, changePasswordDto: ChangePasswordDto) {
+  async changePassword(
+    id: string,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<Users> {
     const user = await this.repository.findOne({
       where: { id },
     });
@@ -56,11 +63,11 @@ export class UsersService {
       throw new Error('User not found');
     }
 
-    if (await bcrypt.compare(changePasswordDto.oldPassword, user.password)) {
-      throw new Error('Old password is incorrect');
+    if (!(await bcrypt.compare(changePasswordDto.oldPassword, user.password))) {
+      throw new BadRequestException('Password not match');
     }
 
-    user.password = changePasswordDto.newPassword;
+    user.password = await bcrypt.hash(changePasswordDto.newPassword, 10);
     return await this.repository.create(user);
   }
 

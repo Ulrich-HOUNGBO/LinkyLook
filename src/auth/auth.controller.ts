@@ -31,7 +31,7 @@ export class AuthController {
     type: TokenResponseDto,
   })
   @Post('register')
-  async register(@Body() registerDto: RegisterDto) {
+  async register(@Body() registerDto: RegisterDto): Promise<Users> {
     return this.authService.register(registerDto);
   }
 
@@ -64,6 +64,14 @@ export class AuthController {
       user.id,
       refreshTokenDto.refreshToken,
     );
+  }
+
+  @Public()
+  @ApiOperation({ summary: 'Activate Account' })
+  @ApiResponse({ status: 200, description: 'Account activated successfully' })
+  @Post('activate')
+  async activateAccount(@Body() token: string) {
+    return this.authService.verifyEmail(token);
   }
 
   @ApiOperation({ summary: 'Logout user' })

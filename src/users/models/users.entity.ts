@@ -2,6 +2,7 @@ import { AbstractEntity } from '@app/common/database/postgresql';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { UserOrganizations } from '../../organization/models/user-organization.entity';
+import { Links } from '../../links/models/links.entity';
 
 @Entity({ name: 'Users' })
 export class Users extends AbstractEntity<Users> {
@@ -17,8 +18,8 @@ export class Users extends AbstractEntity<Users> {
   @Column({ nullable: true, unique: true })
   username: string;
 
+  @Exclude({ toPlainOnly: true })
   @Column({ nullable: true })
-  @Exclude()
   password: string;
 
   @Column({ nullable: true })
@@ -27,9 +28,13 @@ export class Users extends AbstractEntity<Users> {
   @Column({ nullable: false, default: false })
   verified: boolean;
 
+  @Exclude()
   @Column({ nullable: true })
   googleId: string;
 
   @OneToMany(() => UserOrganizations, (userOrg) => userOrg.user)
   userOrganizations: UserOrganizations[];
+
+  @OneToMany(() => Links, (link: Links) => link.createdBy)
+  links: Links;
 }

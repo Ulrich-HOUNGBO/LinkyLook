@@ -17,6 +17,7 @@ import {
 } from '@nestjs/swagger';
 import { RedocModule, RedocOptions } from 'nestjs-redoc';
 import { GlobalAuthGuard } from './auth/guards/global-auth.guard';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -24,6 +25,7 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
   const cacheService = app.get(CacheService);
   app.enableCors();
+  app.use(helmet());
   app.setGlobalPrefix('api');
   app.enableVersioning({
     type: VersioningType.URI,

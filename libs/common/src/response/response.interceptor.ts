@@ -11,6 +11,7 @@ import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Request, Response } from 'express';
 import safeStringify from 'fast-safe-stringify';
+import { instanceToPlain } from 'class-transformer';
 
 interface ErrorResponse {
   message?: string | string[];
@@ -19,7 +20,7 @@ interface ErrorResponse {
 }
 
 @Injectable()
-export class ResponseInterceptor implements NestInterceptor {
+export class ResponseInterceptor<T> implements NestInterceptor {
   private readonly logger = new Logger(ResponseInterceptor.name);
 
   intercept(ctx: ExecutionContext, next: CallHandler): Observable<unknown> {
@@ -28,13 +29,13 @@ export class ResponseInterceptor implements NestInterceptor {
     const start = Date.now();
 
     return next.handle().pipe(
-      map((data) => {
+      map((data: T) => {
         this.logger.log(`Response: ${method} ${url} – ${Date.now() - start}ms`);
+        const serializedData = instanceToPlain(data);
         return {
           statusCode: res.statusCode,
           timestamp: new Date().toISOString(),
-          path: url,
-          data: data as unknown,
+          data: serializedData,
         };
       }),
       catchError((err: Error | HttpException) => {
@@ -67,7 +68,6 @@ export class ResponseInterceptor implements NestInterceptor {
           {
             statusCode: status,
             timestamp: new Date().toISOString(),
-            path: url,
             error,
             message,
           },
@@ -83,7 +83,6 @@ export class ResponseInterceptor implements NestInterceptor {
   ): Response {
     const ctx = context.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
     const status =
       exception instanceof HttpException
         ? exception.getStatus()
@@ -114,7 +113,6 @@ export class ResponseInterceptor implements NestInterceptor {
     const errorObj = {
       statusCode: status,
       timestamp,
-      path: request.url,
       error,
       message,
     };
@@ -132,16 +130,13 @@ export class ResponseInterceptor implements NestInterceptor {
   ): Response<any, Record<string, any>> {
     const ctx = context.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
 
     const statusCode = response.statusCode;
     const timestamp = new Date().toISOString();
-    const path = request.url;
 
     const result = {
       statusCode,
       timestamp,
-      path,
       data: res,
     };
 
