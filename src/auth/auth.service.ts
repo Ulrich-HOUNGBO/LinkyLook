@@ -147,6 +147,7 @@ export class AuthService {
     // This could involve checking the token against a database or cache
     // For simplicity, let's assume the token is valid if it exists in Redis
     const userId = await this.redisService.get(`email_verification:${token}`);
+    console.log('User ID from token:', userId);
 
     if (!userId) {
       throw new UnauthorizedException('Invalid or expired verification token');
@@ -158,6 +159,24 @@ export class AuthService {
     await this.redisService.del(`email_verification:${token}`);
 
     return { message: 'Email verified successfully' };
+  }
+
+  //TODO: do nothing if user already verified
+  async resendVerificationEmail(email: string) {
+    const user = await this.usersRepository.findOne({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (user.verified) {
+      throw new UnauthorizedException('User already verified');
+    }
+
+    await this.sendVerificationEmail(user);
+    return { message: 'Verification email sent successfully' };
   }
 
   private async getTokens(userId: string, email: string) {
@@ -208,7 +227,7 @@ export class AuthService {
         secret: this.configService.get<string>('JWT_EMAIL_VERIFICATION_SECRET'),
         expiresIn: parseInt(
           this.configService.get<string>('JWT_EMAIL_VERIFICATION_EXPIRATION') ||
-            '180', // Default to 3 minutes
+            '600', // Default to 3 minutes
           10,
         ),
       },
@@ -216,7 +235,7 @@ export class AuthService {
     await this.redisService.set(
       `email_verification:${token}`,
       user.id,
-      180, // Store for 3 minutes
+      600, // Store for 10 minutes
     );
     await this.verifyMailsQueue.add(VERIFY_MAILS_QUEUE, {
       email: user.email,

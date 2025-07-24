@@ -7,10 +7,14 @@ import { UsersRepository } from './models/users.repository';
 import { ChangePasswordDto, CreateUserDto } from './dto/users.dto';
 import { Users } from './models/users.entity';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly repository: UsersRepository) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly repository: UsersRepository,
+  ) {}
 
   async getAllUsers() {
     return await this.repository.find({});
@@ -54,7 +58,7 @@ export class UsersService {
   async changePassword(
     id: string,
     changePasswordDto: ChangePasswordDto,
-  ): Promise<Users> {
+  ): Promise<Users | null> {
     const user = await this.repository.findOne({
       where: { id },
     });
@@ -68,7 +72,7 @@ export class UsersService {
     }
 
     user.password = await bcrypt.hash(changePasswordDto.newPassword, 10);
-    return await this.repository.create(user);
+    return await this.repository.update({ id }, user);
   }
 
   async forgotPassword(email: string) {
@@ -86,5 +90,22 @@ export class UsersService {
     return { message: 'Password reset link sent to your email' };
   }
 
-  async createNewPassword(token: string, newPassword: string) {}
+  async createNewPassword(token: string, newPassword: string) {
+    const tokenDecoded: Users = await this.jwtService.decode(token);
+    const user = await this.repository.findOne({
+      where: { id: tokenDecoded.id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    return await this.repository.update(
+      {
+        id: user.id,
+      },
+      user,
+    );
+  }
 }

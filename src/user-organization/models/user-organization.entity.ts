@@ -1,8 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 import { AbstractEntity } from '@app/common/database/postgresql';
-import { Organizations } from './organization.entity';
+import { Organizations } from '../../organization/models/organization.entity';
 import { Users } from '../../users/models/users.entity';
-import { Roles } from './role.entity';
+import { Roles } from '../../roles/entities/role.entity';
 
 @Entity({ name: 'UserOrganizations' })
 @Unique(['userId', 'organizationId'])

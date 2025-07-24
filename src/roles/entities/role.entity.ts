@@ -1,6 +1,6 @@
-import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { AbstractEntity } from '@app/common/database/postgresql';
-import { Organizations } from './organization.entity';
+import { Organizations } from '../../organization/models/organization.entity';
 
 @Entity({ name: 'Roles' })
 export class Roles extends AbstractEntity<Roles> {
@@ -16,7 +16,4 @@ export class Roles extends AbstractEntity<Roles> {
   @ManyToOne(() => Organizations, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'organizationId' })
   organization: Organizations;
-
-  @Column({ nullable: false })
-  organizationId: string;
 }

@@ -1,7 +1,7 @@
 import { AbstractEntity } from '@app/common/database/postgresql';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
-import { UserOrganizations } from '../../organization/models/user-organization.entity';
+import { UserOrganizations } from '../../user-organization/models/user-organization.entity';
 import { Links } from '../../links/models/links.entity';
 
 @Entity({ name: 'Users' })

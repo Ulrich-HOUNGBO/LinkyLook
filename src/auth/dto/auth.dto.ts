@@ -61,3 +61,17 @@ export class LoginResponseDto {
   @ApiProperty()
   refreshToken: string;
 }
+
+export class VerifyEmailDto {
+  @ApiProperty({ example: 'verification-token' })
+  @IsString()
+  @IsNotEmpty()
+  token: string;
+}
+
+export class ResendVerificationEmailDto {
+  @ApiProperty({ example: 'email' })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+}

@@ -4,7 +4,9 @@ import {
   LoginDto,
   RefreshTokenDto,
   RegisterDto,
+  ResendVerificationEmailDto,
   TokenResponseDto,
+  VerifyEmailDto,
 } from './dto/auth.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
@@ -70,8 +72,20 @@ export class AuthController {
   @ApiOperation({ summary: 'Activate Account' })
   @ApiResponse({ status: 200, description: 'Account activated successfully' })
   @Post('activate')
-  async activateAccount(@Body() token: string) {
-    return this.authService.verifyEmail(token);
+  async activateAccount(@Body() verifyEmailDto: VerifyEmailDto) {
+    return this.authService.verifyEmail(verifyEmailDto.token);
+  }
+
+  @Public()
+  @ApiOperation({ summary: 'Resend verification email' })
+  @ApiResponse({ status: 200, description: 'Verification email sent' })
+  @Post('resend-verification')
+  async resendVerificationEmail(
+    @Body() resendVerificationEmailDto: ResendVerificationEmailDto,
+  ) {
+    return this.authService.resendVerificationEmail(
+      resendVerificationEmailDto.email,
+    );
   }
 
   @ApiOperation({ summary: 'Logout user' })

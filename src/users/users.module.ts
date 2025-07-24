@@ -5,9 +5,15 @@ import { Users } from './models/users.entity';
 import { DatabaseModule } from '@app/common/database/postgresql';
 import { UsersRepository } from './models/users.repository';
 import { LoggerModule } from '@app/common';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [LoggerModule, DatabaseModule, DatabaseModule.forFeature([Users])],
+  imports: [
+    JwtModule,
+    LoggerModule,
+    DatabaseModule,
+    DatabaseModule.forFeature([Users]),
+  ],
   controllers: [UsersController],
   providers: [UsersService, UsersRepository],
   exports: [UsersService, UsersRepository],

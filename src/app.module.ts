@@ -8,11 +8,18 @@ import { CampaignModule } from './campaign/campaign.module';
 import { ModelesModule } from './modeles/modeles.module';
 import { LinksModule } from './links/links.module';
 import { BullMqModule } from '@app/common/queue/queue.module';
+import { RolesModule } from './roles/roles.module';
+import { UserOrganizationModule } from './user-organization/user-organization.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    EventEmitterModule.forRoot({
+      wildcard: true,
+      delimiter: '.',
     }),
     LoggerModule,
     RedisModule,
@@ -24,6 +31,8 @@ import { BullMqModule } from '@app/common/queue/queue.module';
     CampaignModule,
     OrganizationModule,
     LinksModule,
+    RolesModule,
+    UserOrganizationModule,
   ],
   controllers: [],
   providers: [],

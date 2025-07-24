@@ -59,7 +59,7 @@ export class MailsService {
             To: [{ Email: to }],
             Subject: subject,
             TemplateID: templateId,
-            TemplateLanguage: false,
+            TemplateLanguage: true,
             Variables: variables,
           },
         ],
