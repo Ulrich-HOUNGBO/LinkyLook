@@ -6,4 +6,6 @@ export const RESET_PWD_TEMPLATE = 'ResetPassword';
 
 export const RESET_PWD_SUBJECT = 'Reset your password';
 
-export const SEND_INVITE_TEMPLATE = 'SendInvite';
+export const SEND_INVITE_TEMPLATE = 7412587;
+
+export const SEND_INVITE_SUBJECT = 'Invitation to join our platform';

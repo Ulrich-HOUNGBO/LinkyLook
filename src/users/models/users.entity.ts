@@ -1,10 +1,11 @@
 import { AbstractEntity } from '@app/common/database/postgresql';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { UserOrganizations } from '../../user-organization/models/user-organization.entity';
 import { Links } from '../../links/models/links.entity';
 
 @Entity({ name: 'Users' })
+@Index(['email'], { unique: true })
 export class Users extends AbstractEntity<Users> {
   @Column({ nullable: true })
   firstName: string;

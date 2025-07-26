@@ -25,16 +25,20 @@ export class VerifyMailConsumer extends WorkerHost {
   async process(job: Job<VerifyMailQueueDto>) {
     this.logger.log(`Processing job with data: ${JSON.stringify(job.data)}`);
     const { email, token, variables } = job.data;
+    const variable = {
+      ...variables,
+      confirmation_link: `${this.configService.getOrThrow<string>(
+        'FRONTEND_URL',
+      )}/verify-email?token=${token}`,
+    };
+    console.log(variable);
 
     try {
       await this.mailService.sendTemplateEmail(
         email,
         VERIFY_EMAIL_SUBJECT,
         VERIFY_EMAIL_TEMPLATE,
-        {
-          ...variables,
-          verificationLink: `${this.configService.getOrThrow<string>('FRONTEND_URL')}/verify-email?token=${token}`,
-        },
+        variable,
       );
       this.logger.log(`Verification email sent to ${email}`);
     } catch (error) {

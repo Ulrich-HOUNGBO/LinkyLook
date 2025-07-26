@@ -5,6 +5,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { Organizations } from '../organization/models/organization.entity';
 import { Users } from '../users/models/users.entity';
 import { Roles } from '../roles/entities/role.entity';
+import { CREATE_ORGANIZATION_EVENT } from '@app/common/constants';
 
 @Injectable()
 export class UserOrganizationListener {
@@ -13,7 +14,7 @@ export class UserOrganizationListener {
     private readonly organizationService: OrganizationService,
   ) {}
 
-  @OnEvent('organization.created')
+  @OnEvent(CREATE_ORGANIZATION_EVENT)
   async handleOrganizationCreatedEvent(event: {
     organization: Organizations;
     user: Users;

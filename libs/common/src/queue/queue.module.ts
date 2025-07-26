@@ -1,7 +1,10 @@
 import { Global, Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { VERIFY_MAILS_QUEUE } from '@app/common/constants/queue';
+import {
+  INVITATION_QUEUE,
+  VERIFY_MAILS_QUEUE,
+} from '@app/common/constants/queue';
 
 @Global()
 @Module({
@@ -19,6 +22,10 @@ import { VERIFY_MAILS_QUEUE } from '@app/common/constants/queue';
 
     BullModule.registerQueue({
       name: VERIFY_MAILS_QUEUE,
+    }),
+
+    BullModule.registerQueue({
+      name: INVITATION_QUEUE,
     }),
   ],
   controllers: [],

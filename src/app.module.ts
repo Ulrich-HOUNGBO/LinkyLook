@@ -11,6 +11,7 @@ import { BullMqModule } from '@app/common/queue/queue.module';
 import { RolesModule } from './roles/roles.module';
 import { UserOrganizationModule } from './user-organization/user-organization.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { InvitationModule } from './invitation/invitation.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     LinksModule,
     RolesModule,
     UserOrganizationModule,
+    InvitationModule,
   ],
   controllers: [],
   providers: [],
