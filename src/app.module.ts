@@ -13,6 +13,7 @@ import { UserOrganizationModule } from './user-organization/user-organization.mo
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { InvitationModule } from './invitation/invitation.module';
 import { PagesModule } from './pages/pages.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { PagesModule } from './pages/pages.module';
     UserOrganizationModule,
     InvitationModule,
     PagesModule,
+    AnalyticsModule,
   ],
   controllers: [],
   providers: [],

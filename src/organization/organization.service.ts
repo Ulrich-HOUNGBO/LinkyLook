@@ -9,6 +9,7 @@ import { Organizations } from './models/organization.entity';
 import { Users } from '../users/models/users.entity';
 import { RolesService } from '../roles/roles.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { createSlug } from '@app/common/utils';
 
 @Injectable()
 export class OrganizationService {
@@ -23,10 +24,7 @@ export class OrganizationService {
     currentUser: Users,
   ) {
     const organization = new Organizations(organizationDto);
-    organization.slug = organizationDto.name
-      .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '');
+    organization.slug = createSlug(organizationDto.name);
     const existingOrganization = await this.organizationRepository.findOne({
       where: { name: organization.name },
     });

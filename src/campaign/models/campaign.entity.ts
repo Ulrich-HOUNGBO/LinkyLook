@@ -11,6 +11,9 @@ export class Campaigns extends AbstractEntity<Campaigns> {
   @Column({ nullable: false })
   name: string;
 
+  @Column({ nullable: false })
+  slug: string;
+
   @Column({ nullable: true })
   description: string;
 

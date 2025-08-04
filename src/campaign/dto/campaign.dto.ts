@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { Organizations } from '../../organization/models/organization.entity';
+import { Modeles } from '../../modeles/models/modeles.entity';
 
 export class CreateCampaignDto {
   @ApiProperty({
@@ -25,5 +27,33 @@ export class CreateCampaignDto {
   })
   @IsUUID()
   @IsNotEmpty()
-  modelId: string;
+  modelId: Modeles;
+
+  @ApiProperty({
+    description: 'The ID of the organization associated with the campaign',
+    example: '1',
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  organizationId: Organizations;
+}
+
+export class UpdateCampaignDto {
+  @ApiProperty({
+    description: 'The name of the campaign',
+    example: 'Updated Campaign Name',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @ApiProperty({
+    description: 'The description of the campaign',
+    example: 'This is an updated campaign description.',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  description?: string;
 }
