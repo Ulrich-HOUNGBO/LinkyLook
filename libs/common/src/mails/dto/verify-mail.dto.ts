@@ -1,9 +1,8 @@
 export class VerifyMailQueueDto {
   email: string;
-  token: string;
-  templateId: string;
+  otp: string;
   variables: Record<string, string> = {
     name: '',
-    verification_link: '',
+    otp_code: '',
   };
 }

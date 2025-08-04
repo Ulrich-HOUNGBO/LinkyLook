@@ -23,10 +23,9 @@ export class UserOrganizationListener {
     const { organization, user, createdRole } = event;
 
     // Automatically add the creator as the first user in the organization
-    await this.userOrganizationService.addUserToOrganization(
-      organization.id,
-      { userId: user.id, roleId: createdRole.id },
-      user,
-    );
+    await this.userOrganizationService.addUserToOrganization(organization.id, {
+      userId: user.id,
+      roleId: createdRole.id,
+    });
   }
 }

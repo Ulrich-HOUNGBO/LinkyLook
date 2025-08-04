@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import {
+  FORGOT_PASSWORD_QUEUE,
   INVITATION_QUEUE,
   VERIFY_MAILS_QUEUE,
 } from '@app/common/constants/queue';
@@ -26,6 +27,10 @@ import {
 
     BullModule.registerQueue({
       name: INVITATION_QUEUE,
+    }),
+
+    BullModule.registerQueue({
+      name: FORGOT_PASSWORD_QUEUE,
     }),
   ],
   controllers: [],

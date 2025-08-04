@@ -1,8 +1,8 @@
-export const VERIFY_EMAIL_TEMPLATE = 7176001;
+export const VERIFY_EMAIL_TEMPLATE = 7196665;
 
 export const VERIFY_EMAIL_SUBJECT = 'Verify your email address';
 
-export const RESET_PWD_TEMPLATE = 'ResetPassword';
+export const RESET_PWD_TEMPLATE = 7200315;
 
 export const RESET_PWD_SUBJECT = 'Reset your password';
 

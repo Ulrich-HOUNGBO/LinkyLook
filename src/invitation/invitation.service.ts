@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { CreateInvitationDto } from './dto/create-invitation.dto';
 import { Invitations } from './models/invitation.entity';
@@ -6,6 +6,8 @@ import { InvitationRepository } from './models/invitation.repository';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Users } from '../users/models/users.entity';
 import { INVITATION_CREATED_EVENT } from '@app/common/constants';
+import { InvitationStatus } from '@app/common/enums/invitation-status.enum';
+import { UpdateInvitationDto } from './dto/update-invitation.dto';
 
 @Injectable()
 export class InvitationService {
@@ -14,7 +16,7 @@ export class InvitationService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async createInvitation(
+  async create(
     invitationData: CreateInvitationDto,
     user: Users,
   ): Promise<Invitations> {
@@ -35,59 +37,37 @@ export class InvitationService {
     return invitation;
   }
 
-  async findInvitationById(id: string): Promise<Invitations> {
+  async findInvitationById(id: string): Promise<Invitations | null> {
     return this.invitationRepository.findOne({ where: { id } });
   }
 
   async findInvitationsByOrganizationId(
     organizationId: string,
   ): Promise<Invitations[]> {
-    return this.invitationRepository.find({
-      where: { organization: organizationId },
-    });
+    return this.invitationRepository.find({ where: { id: organizationId } });
   }
 
   async updateInvitation(
     id: string,
     updateData: UpdateInvitationDto,
-  ): Promise<Invitations> {
-    await this.invitationRepository.update(id, updateData);
-    return this.findInvitationById(id);
+  ): Promise<Invitations | null> {
+    return await this.invitationRepository.update({ id }, updateData);
   }
 
   async deleteInvitation(id: string): Promise<void> {
-    await this.invitationRepository.delete(id);
+    await this.invitationRepository.delete({ id });
   }
 
-  async acceptInvitation(id: string, userId: string): Promise<Invitations> {
+  async acceptInvitation(id: string): Promise<Invitations | null> {
     const invitation = await this.findInvitationById(id);
     if (!invitation) {
-      throw new Error('Invitation not found');
+      throw new NotFoundException('Invitation not found');
     }
-
-    invitation.accepted = true;
-    invitation.acceptedBy = userId;
-    return this.invitationRepository.save(invitation);
-  }
-
-  async rejectInvitation(id: string): Promise<Invitations> {
-    const invitation = await this.findInvitationById(id);
-    if (!invitation) {
-      throw new Error('Invitation not found');
-    }
-
-    invitation.accepted = false;
-    return this.invitationRepository.save(invitation);
-  }
-
-  private async sendEmailInvitation(
-    email: string,
-    organizationId: string,
-  ): Promise<void> {
-    // Logic to send email invitation
-    // This could involve using a mail service like Nodemailer or any other email service provider
-    console.log(
-      `Sending invitation to ${email} for organization ${organizationId}`,
+    return this.invitationRepository.update(
+      { id },
+      {
+        status: InvitationStatus.ACCEPTED,
+      },
     );
   }
 

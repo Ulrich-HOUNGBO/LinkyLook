@@ -3,13 +3,19 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
-import { LoginDto, LoginResponseDto, RegisterDto } from './dto/auth.dto';
+import {
+  LoginDto,
+  LoginResponseDto,
+  RegisterDto,
+  TokenPayloadDto,
+} from './dto/auth.dto';
 import { UsersRepository } from '../users/models/users.repository';
 import { RedisService } from '@app/common';
 import { Users } from '../users/models/users.entity';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { VERIFY_MAILS_QUEUE } from '@app/common/constants/queue';
+import { VerifyMailQueueDto } from '@app/common/mails/dto/verify-mail.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +26,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly redisService: RedisService,
     @InjectQueue(VERIFY_MAILS_QUEUE)
-    private readonly verifyMailsQueue: Queue,
+    private readonly verifyMailsQueue: Queue<VerifyMailQueueDto>,
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -31,7 +37,7 @@ export class AuthService {
     if (user && user.password) {
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (isPasswordValid) {
-        const { password, ...result } = user;
+        const { ...result } = user;
         return result;
       }
     }
@@ -75,8 +81,18 @@ export class AuthService {
     return user;
   }
 
-  async refreshTokens(userId: string, refreshToken: string) {
-    const user = await this.usersService.getUser(userId);
+  async refreshTokens(refreshToken: string) {
+    const decoded_token = this.jwtService.verify<TokenPayloadDto>(
+      refreshToken,
+      {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      },
+    );
+    console.log('User from refresh token:', decoded_token);
+
+    const user = await this.usersRepository.findOne({
+      where: { id: decoded_token.sub },
+    });
 
     if (!user) {
       throw new UnauthorizedException('User not found');
@@ -84,20 +100,16 @@ export class AuthService {
 
     // Get the stored refresh token from Redis
     const storedRefreshToken = await this.redisService.get(
-      `refresh_token:${userId}`,
+      `refresh_token:${user.id}`,
     );
-    console.log('Stored Refresh Token:', storedRefreshToken);
 
-    if (!storedRefreshToken) {
+    if (!storedRefreshToken || storedRefreshToken !== refreshToken) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
     // In a real application, you would compare the refresh token with the stored one
-    if (storedRefreshToken !== refreshToken) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-    // For enhanced security, you could also implement token rotation
 
+    // For enhanced security, you could also implement token rotation
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
 
@@ -161,7 +173,35 @@ export class AuthService {
     return { message: 'Email verified successfully' };
   }
 
-  //TODO: do nothing if user already verified
+  async forgetPassword(email: string) {
+    const user = await this.usersRepository.findOne({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // Generate a password reset token
+    const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
+    await this.redisService.set(
+      `password_reset:${resetToken}`,
+      user.id,
+      600, // Store for 10 minutes
+    );
+
+    // Send the reset token via email (you would implement this in your mail service)
+    await this.verifyMailsQueue.add(VERIFY_MAILS_QUEUE, {
+      email: user.email,
+      otp: resetToken,
+      variables: {
+        name: user.username ?? user?.firstName + ' ' + user?.lastName,
+      },
+    });
+
+    return { message: 'Password reset email sent successfully' };
+  }
+
   async resendVerificationEmail(email: string) {
     const user = await this.usersRepository.findOne({
       where: { email },
@@ -172,6 +212,7 @@ export class AuthService {
     }
 
     if (user.verified) {
+      //do nothing
       throw new UnauthorizedException('User already verified');
     }
 
@@ -221,25 +262,15 @@ export class AuthService {
   }
 
   private async sendVerificationEmail(user: Users) {
-    const token = this.jwtService.sign(
-      { sub: user.id, email: user.email },
-      {
-        secret: this.configService.get<string>('JWT_EMAIL_VERIFICATION_SECRET'),
-        expiresIn: parseInt(
-          this.configService.get<string>('JWT_EMAIL_VERIFICATION_EXPIRATION') ||
-            '600', // Default to 3 minutes
-          10,
-        ),
-      },
-    );
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
     await this.redisService.set(
-      `email_verification:${token}`,
+      `email_verification:${otp}`,
       user.id,
       600, // Store for 10 minutes
     );
     await this.verifyMailsQueue.add(VERIFY_MAILS_QUEUE, {
       email: user.email,
-      token,
+      otp,
       variables: {
         name: user.username ?? user?.firstName + ' ' + user?.lastName,
       },

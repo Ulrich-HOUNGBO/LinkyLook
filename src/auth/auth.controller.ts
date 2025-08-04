@@ -49,23 +49,16 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
+  @Public()
   @ApiOperation({ summary: 'Refresh access token' })
   @ApiResponse({
     status: 200,
     description: 'Token refreshed successfully',
     type: TokenResponseDto,
   })
-  @ApiBearerAuth('JWT')
   @Post('refresh')
-  async refreshTokens(
-    @Body() refreshTokenDto: RefreshTokenDto,
-    @ActiveUser() user: Users,
-  ) {
-    console.log('Refreshing tokens for user:', user.id);
-    return this.authService.refreshTokens(
-      user.id,
-      refreshTokenDto.refreshToken,
-    );
+  async refreshTokens(@Body() refreshTokenDto: RefreshTokenDto) {
+    return this.authService.refreshTokens(refreshTokenDto.refreshToken);
   }
 
   @Public()

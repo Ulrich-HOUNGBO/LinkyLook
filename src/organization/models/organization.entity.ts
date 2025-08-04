@@ -23,7 +23,7 @@ export class Organizations extends AbstractEntity<Organizations> {
 
   @OneToMany(() => Links, (link) => link.organization, {
     nullable: true,
-    eager: true,
+    eager: false,
   })
   links: Links[];
 }

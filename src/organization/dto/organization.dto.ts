@@ -18,3 +18,21 @@ export class OrganizationDto {
   @IsOptional()
   description: string;
 }
+
+export class UpdateOrganizationDto {
+  @ApiProperty({
+    example: 'Tech Innovations',
+    description: 'The name of the organization',
+  })
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @ApiProperty({
+    example: 'A leading tech company specializing in innovative solutions.',
+    description: 'A brief description of the organization',
+  })
+  @IsString()
+  @IsOptional()
+  description?: string;
+}

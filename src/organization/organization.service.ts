@@ -96,7 +96,7 @@ export class OrganizationService {
     return await this.organizationRepository.create(organization);
   }
 
-  async deleteOrganization(slug: string) {
+  async deleteOrganization(slug: string, currentUser: Users) {
     const organization = await this.organizationRepository.findOne({
       where: { slug },
     });
