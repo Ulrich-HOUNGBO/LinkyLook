@@ -68,6 +68,6 @@ export class CampaignService {
       throw new NotFoundException(`Campaign not found`);
     }
 
-    return this.campaignRepository.softDelete(campaign);
+    return this.campaignRepository.softDelete({ id });
   }
 }

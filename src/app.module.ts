@@ -14,6 +14,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { InvitationModule } from './invitation/invitation.module';
 import { PagesModule } from './pages/pages.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { MediasModule } from './medias/medias.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     InvitationModule,
     PagesModule,
     AnalyticsModule,
+    MediasModule,
   ],
   controllers: [],
   providers: [],

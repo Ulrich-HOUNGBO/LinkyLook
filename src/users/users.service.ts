@@ -40,15 +40,7 @@ export class UsersService {
   }
 
   async deleteUser(id: string) {
-    const user = await this.repository.findOne({
-      where: { id },
-    });
-
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    return await this.repository.delete(user);
+    return await this.repository.delete({ id });
   }
 
   async softDeleteUser(id: string) {

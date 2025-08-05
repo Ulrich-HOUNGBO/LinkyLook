@@ -161,18 +161,6 @@ export class UserOrganizationService {
       throw new NotFoundException('Organization not found');
     }
 
-    // Check if user has permission to remove users
-    const userOrganization = await this.userOrganizationRepository.findOne({
-      where: { userId: currentUser.id, organizationId },
-      relations: ['role'],
-    });
-
-    if (!userOrganization?.role?.permissions?.manageUsers) {
-      throw new ForbiddenException(
-        'You do not have permission to remove users from this organization',
-      );
-    }
-
     // Check if target user is in organization
     const targetUserOrganization =
       await this.userOrganizationRepository.findOne({
@@ -183,6 +171,8 @@ export class UserOrganizationService {
       throw new NotFoundException('User is not in this organization');
     }
 
-    return await this.userOrganizationRepository.delete(targetUserOrganization);
+    return await this.userOrganizationRepository.delete({
+      id: targetUserOrganization.id,
+    });
   }
 }

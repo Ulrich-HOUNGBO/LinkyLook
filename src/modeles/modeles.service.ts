@@ -42,7 +42,7 @@ export class ModelesService {
     if (!existingModel) {
       throw new Error('Model not found');
     }
-    await this.modelesRepository.delete(existingModel);
+    await this.modelesRepository.delete({ id: existingModel.id });
   }
 
   async findByOrganizationId(organizationId: string): Promise<Modeles[]> {

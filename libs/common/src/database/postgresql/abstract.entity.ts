@@ -1,12 +1,14 @@
 import {
+  BeforeInsert,
   CreateDateColumn,
   DeleteDateColumn,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { createId } from '@paralleldrive/cuid2';
 
 export class AbstractEntity<T> {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('varchar')
   id: string;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
@@ -24,5 +26,12 @@ export class AbstractEntity<T> {
 
   constructor(entity: Partial<T>) {
     Object.assign(this, entity);
+  }
+
+  @BeforeInsert()
+  generateId() {
+    if (!this.id) {
+      this.id = createId();
+    }
   }
 }

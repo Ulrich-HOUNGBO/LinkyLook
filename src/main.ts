@@ -40,8 +40,8 @@ async function bootstrap() {
   app.useGlobalGuards(new GlobalAuthGuard(reflector));
 
   const config = new DocumentBuilder()
-    .setTitle('Linklyst API')
-    .setDescription('Linklyst API Documentation')
+    .setTitle('LinkyLook API')
+    .setDescription('LinkyLook API Documentation')
     .setVersion('1.0')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
@@ -49,9 +49,9 @@ async function bootstrap() {
     )
     .setLicense('MIT', 'https://opensource.org/licenses/MIT')
     .setContact(
-      'Linklyst Team',
-      'mailto:linklyst@gmail.com',
-      'linklyst@gmail.com',
+      'LinkyLook Team',
+      'mailto:admin@linkylook.com',
+      'admin@linkylook.com',
     )
     .build();
 
@@ -65,10 +65,11 @@ async function bootstrap() {
 
   // Setup ReDoc
   const redocOptions: RedocOptions = {
-    title: 'Linklyst API Documentation',
+    redocVersion: 'latest',
+    title: 'LinkyLook API Documentation',
     sortPropsAlphabetically: true,
-    hideDownloadButton: false,
-    hideHostname: false,
+    hideDownloadButton: true,
+    hideHostname: true,
   };
   await RedocModule.setup('/docs', app, document, redocOptions);
   const configService = app.get(ConfigService);

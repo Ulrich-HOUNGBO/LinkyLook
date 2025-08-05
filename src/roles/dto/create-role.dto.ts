@@ -1,13 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID } from 'class-validator';
-import { Organizations } from '../../organization/models/organization.entity';
+import { IsString } from 'class-validator';
+import { IsCuid } from '@app/common/validators';
 import { Type } from 'class-transformer';
+import { Organizations } from '../../organization/models/organization.entity';
 
 export class CreateRoleDto {
   @ApiProperty({
     example: 'Admin',
     description: 'Name of the role',
   })
+  @IsString()
   name: string;
 
   @ApiProperty({
@@ -29,7 +31,7 @@ export class CreateRoleDto {
     example: 'org_12345',
     description: 'ID of the organization to which the role belongs',
   })
-  @IsUUID()
+  @IsCuid()
   @Type(() => String)
   organization: Organizations;
 }

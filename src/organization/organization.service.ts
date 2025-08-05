@@ -94,7 +94,7 @@ export class OrganizationService {
     return await this.organizationRepository.create(organization);
   }
 
-  async deleteOrganization(slug: string, currentUser: Users) {
+  async deleteOrganization(slug: string) {
     const organization = await this.organizationRepository.findOne({
       where: { slug },
     });
@@ -102,7 +102,9 @@ export class OrganizationService {
     if (!organization) {
       throw new NotFoundException('Organization not found');
     }
-    return await this.organizationRepository.softDelete(organization);
+    return await this.organizationRepository.softDelete({
+      id: organization.id,
+    });
   }
 
   async listOrganizations() {

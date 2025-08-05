@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
-import { Organizations } from '../../organization/models/organization.entity';
-import { Modeles } from '../../modeles/models/modeles.entity';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsCuid } from '@app/common';
 
 export class CreateCampaignDto {
   @ApiProperty({
@@ -25,17 +24,16 @@ export class CreateCampaignDto {
     description: 'The ID of the model associated with the campaign',
     example: '1',
   })
-  @IsUUID()
-  @IsNotEmpty()
-  modelId: Modeles;
+  @IsCuid()
+  modelId: string;
 
   @ApiProperty({
     description: 'The ID of the organization associated with the campaign',
     example: '1',
   })
-  @IsUUID()
+  @IsCuid()
   @IsNotEmpty()
-  organizationId: Organizations;
+  organizationId: string;
 }
 
 export class UpdateCampaignDto {

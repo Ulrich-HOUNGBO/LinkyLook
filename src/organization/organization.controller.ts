@@ -51,11 +51,8 @@ export class OrganizationController {
 
   @Delete(':slug')
   @ApiOperation({ summary: 'Delete organization' })
-  async deleteOrganization(
-    @Param('slug') slug: string,
-    @ActiveUser() currentUser: Users,
-  ) {
-    return this.organizationService.deleteOrganization(slug, currentUser);
+  async deleteOrganization(@Param('slug') slug: string) {
+    return this.organizationService.deleteOrganization(slug);
   }
 
   @Get()

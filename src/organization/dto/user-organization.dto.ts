@@ -1,12 +1,13 @@
-import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsCuid } from '@app/common';
 
 export class UserOrganizationDto {
   @ApiProperty({
     example: '123e4567-e89b-12d3-a456-426614174000',
     description: 'The ID of the user',
   })
-  @IsUUID()
+  @IsCuid()
   @IsNotEmpty()
   userId: string;
 
@@ -14,7 +15,7 @@ export class UserOrganizationDto {
     example: '123e4567-e89b-12d3-a456-426614174001',
     description: 'The ID of the organization',
   })
-  @IsUUID()
+  @IsCuid()
   @IsNotEmpty()
   organizationId: string;
 
@@ -22,7 +23,7 @@ export class UserOrganizationDto {
     example: '123e4567-e89b-12d3-a456-426614174002',
     description: 'The ID of the role (optional)',
   })
-  @IsUUID()
+  @IsCuid()
   @IsOptional()
   roleId?: string;
 }
@@ -32,7 +33,7 @@ export class AddUserToOrganizationDto {
     example: '123e4567-e89b-12d3-a456-426614174000',
     description: 'The ID of the user',
   })
-  @IsUUID()
+  @IsCuid()
   @IsNotEmpty()
   userId: string;
 
@@ -40,7 +41,7 @@ export class AddUserToOrganizationDto {
     example: '123e4567-e89b-12d3-a456-426614174002',
     description: 'The ID of the role (optional)',
   })
-  @IsUUID()
+  @IsCuid()
   @IsOptional()
   roleId?: string;
 }
@@ -50,7 +51,7 @@ export class UpdateUserRoleDto {
     example: '123e4567-e89b-12d3-a456-426614174002',
     description: 'The ID of the role',
   })
-  @IsUUID()
+  @IsCuid()
   @IsNotEmpty()
   roleId: string;
 }
